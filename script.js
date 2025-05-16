@@ -37,25 +37,49 @@ function searchPlaces() {
     out center;
   `;
 
-const url = 'https://overpass-api.de/api/interpreter';
-const bodyData = new URLSearchParams();
-bodyData.append("data", overpassQuery);
+  const url = 'https://overpass-api.de/api/interpreter';
+  const bodyData = new URLSearchParams();
+  bodyData.append("data", overpassQuery);
 
-fetch(url, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
-  },
-  body: bodyData
-})
-.then(response => {
-  if (!response.ok) throw new Error("Bad response from Overpass API");
-  return response.json();
-})
-.then(data => {
-  // Resto do código igual...
-})
-.catch(error => {
-  console.error("Erro na busca:", error);
-  alert("Erro ao buscar dados.");
-});
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: bodyData
+  })
+  .then(response => {
+    if (!response.ok) throw new Error("Bad response from Overpass API");
+    return response.json();
+  })
+  .then(data => {
+    if (!data.elements.length) {
+      alert("Nenhum resultado encontrado.");
+      return;
+    }
+
+    data.elements.forEach(element => {
+      let lat = element.lat;
+      let lon = element.lon;
+
+      // Para 'ways' e 'relations', usamos o centro
+      if (!lat || !lon) {
+        if (element.center) {
+          lat = element.center.lat;
+          lon = element.center.lon;
+        }
+      }
+
+      if (lat && lon) {
+        const name = element.tags?.name || "Sem nome";
+        L.marker([lat, lon])
+          .addTo(markersLayer)
+          .bindPopup(`<b>${name}</b>`);
+      }
+    });
+  })
+  .catch(error => {
+    console.error("Erro na busca:", error);
+    alert("Erro ao buscar dados.");
+  });
+}
