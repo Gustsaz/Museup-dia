@@ -11,6 +11,7 @@ let markers = [];
 const searchInput = document.getElementById('search');
 const suggestions = document.getElementById('suggestions');
 const typeFilter = document.getElementById('typeFilter');
+const searchBtn = document.getElementById('searchBtn');
 
 async function buscarLocais() {
   const query = `
@@ -64,7 +65,19 @@ function limparMarcadores() {
   markers = [];
 }
 
-searchInput.addEventListener('input', () => {
+searchInput.addEventListener('input', atualizarSugestoes);
+typeFilter.addEventListener('change', exibirTodosNoMapa);
+searchBtn.addEventListener('click', () => {
+  const termo = searchInput.value.toLowerCase();
+  const filtro = typeFilter.value;
+  const localEncontrado = locais.find(l => (filtro === 'all' || l.tipo === filtro) && l.nome.toLowerCase().includes(termo));
+  if (localEncontrado) {
+    focarLocal(localEncontrado);
+    suggestions.innerHTML = '';
+  }
+});
+
+function atualizarSugestoes() {
   const termo = searchInput.value.toLowerCase();
   const filtro = typeFilter.value;
   suggestions.innerHTML = '';
@@ -81,11 +94,7 @@ searchInput.addEventListener('input', () => {
       });
       suggestions.appendChild(item);
     });
-});
-
-typeFilter.addEventListener('change', () => {
-  exibirTodosNoMapa();
-});
+}
 
 function focarLocal(local) {
   limparMarcadores();
