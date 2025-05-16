@@ -1,59 +1,122 @@
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f2edda;
+  color: #333;
 }
+
 header {
-  background: #4a90e2;
-  padding: 1rem;
+  background-color: #5c371d;
+  padding: 1rem 2rem;
   color: white;
-  text-align: center;
 }
-#controls {
+
+.logo {
+  font-size: 2rem;
+  font-weight: bold;
+}
+.logo span {
+  font-weight: normal;
+}
+
+main {
+  display: flex;
+  flex-direction: row;
+  height: calc(100vh - 120px);
+}
+
+#map {
+  flex: 2;
+  background-color: #779ecb;
+}
+
+#side-panel {
+  flex: 1;
+  background-color: #c6bfa6;
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs {
+  display: flex;
+  background-color: #8b8677;
+}
+
+.tab {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  background: none;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.tab:not(.active) {
+  opacity: 0.6;
+}
+
+.search-area {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  position: relative;
+  gap: 0.8rem;
 }
-.search-bar {
+
+.search-input-wrapper {
   display: flex;
-  gap: 0.5rem;
+  background-color: white;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  align-items: center;
 }
-#search {
-  padding: 0.5rem;
-  font-size: 16px;
+
+.search-input-wrapper input {
+  border: none;
+  padding: 0.8rem;
   flex: 1;
-}
-#searchBtn {
-  padding: 0.5rem 1rem;
   font-size: 16px;
+  outline: none;
+}
+
+.search-input-wrapper button {
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
   cursor: pointer;
 }
+
 #typeFilter {
   padding: 0.5rem;
   font-size: 16px;
-  width: 200px;
+  width: 100%;
+  border: none;
+  border-radius: 0.5rem;
 }
+
 #suggestions {
   list-style: none;
   padding: 0;
   margin: 0;
   max-height: 150px;
   overflow-y: auto;
-  border: 1px solid #ccc;
-  position: absolute;
   background: white;
-  z-index: 1000;
-  width: 90%;
-  top: 80px;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
 }
+
 #suggestions li {
   padding: 0.5rem;
   cursor: pointer;
 }
+
 #suggestions li:hover {
-  background: #eee;
+  background-color: #eee;
 }
-#map {
-  height: 80vh;
+
+footer {
+  background-color: #b6b29e;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  text-align: center;
 }
