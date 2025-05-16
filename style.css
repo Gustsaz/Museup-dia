@@ -13,10 +13,21 @@ header {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  position: relative;
+}
+.search-bar {
+  display: flex;
+  gap: 0.5rem;
 }
 #search {
   padding: 0.5rem;
   font-size: 16px;
+  flex: 1;
+}
+#searchBtn {
+  padding: 0.5rem 1rem;
+  font-size: 16px;
+  cursor: pointer;
 }
 #typeFilter {
   padding: 0.5rem;
@@ -34,6 +45,7 @@ header {
   background: white;
   z-index: 1000;
   width: 90%;
+  top: 80px;
 }
 #suggestions li {
   padding: 0.5rem;
