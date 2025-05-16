@@ -1,30 +1,44 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Buscador de Museus e Bibliotecas</title>
+  <meta charset="UTF-8" />
+  <title>LevaCulture</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>Buscador de Museus e Bibliotecas</h1>
+    <div class="logo">Leva<span>Culture</span></div>
   </header>
 
-  <div id="controls">
-    <div class="search-bar">
-      <input type="text" id="search" placeholder="Digite o nome do local..." autocomplete="off">
-      <button id="searchBtn">Pesquisar</button>
-    </div>
-    <select id="typeFilter">
-      <option value="all">Todos</option>
-      <option value="museum">Apenas Museus</option>
-      <option value="library">Apenas Bibliotecas</option>
-    </select>
-    <ul id="suggestions"></ul>
-  </div>
+  <main>
+    <div id="map"></div>
 
-  <div id="map"></div>
+    <div id="side-panel">
+      <div class="tabs">
+        <button class="tab active">Pesquisa</button>
+        <button class="tab">Informações</button>
+      </div>
+      <div class="search-area">
+        <div class="search-input-wrapper">
+          <input type="text" id="search" placeholder="Pesquise aqui" autocomplete="off" />
+          <button id="filterBtn">
+            <img src="https://img.icons8.com/ios-filled/24/000000/filter.png" alt="Filtro" />
+          </button>
+        </div>
+        <select id="typeFilter">
+          <option value="all">Todos</option>
+          <option value="museum">Apenas Museus</option>
+          <option value="library">Apenas Bibliotecas</option>
+        </select>
+        <ul id="suggestions"></ul>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    2025 - Feito por: Gustavo Almeida Zuchini & Luiz Fernando Apolinario Knapick
+  </footer>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="script.js"></script>
