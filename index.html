@@ -12,13 +12,14 @@
     <h1>Museus e Bibliotecas</h1>
     <input type="text" id="searchInput" placeholder="Digite o nome do local..." oninput="handleInput()" autocomplete="off"/>
     <div id="suggestions"></div>
+    <div id="loadingSpinner" style="display: none;">🔄</div>
+
     <select id="filterType">
       <option value="all">Todos</option>
       <option value="museum">Apenas Museus</option>
       <option value="library">Apenas Bibliotecas</option>
     </select>
-<button onclick="searchPlaces()">Buscar</button>
-
+    <button onclick="searchPlaces()">Buscar</button>
     <div id="map"></div>
   </div>
 
