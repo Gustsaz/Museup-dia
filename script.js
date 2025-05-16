@@ -1,5 +1,5 @@
 const endpoint = "https://query.wikidata.org/sparql";
-const map = L.map('map').setView([-14.235, -51.9253], 4); // Centro do Brasil
+const map = L.map('map').setView([-14.235, -51.9253], 4);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors'
@@ -27,23 +27,28 @@ async function buscarLocais() {
 
   const url = endpoint + "?query=" + encodeURIComponent(query);
   const headers = { "Accept": "application/sparql-results+json" };
-  const response = await fetch(url, { headers });
-  const data = await response.json();
 
-  locais = data.results.bindings.map(item => {
-    const coords = item.coord.value
-      .replace('Point(', '')
-      .replace(')', '')
-      .split(' ');
-    return {
-      nome: item.itemLabel.value,
-      lat: parseFloat(coords[1]),
-      lng: parseFloat(coords[0]),
-      tipo: item.tipo.value.includes("Q7075") ? "library" : "museum"
-    };
-  });
+  try {
+    const response = await fetch(url, { headers });
+    const data = await response.json();
 
-  exibirTodosNoMapa();
+    locais = data.results.bindings.map(item => {
+      const coords = item.coord.value
+        .replace('Point(', '')
+        .replace(')', '')
+        .split(' ');
+      return {
+        nome: item.itemLabel.value,
+        lat: parseFloat(coords[1]),
+        lng: parseFloat(coords[0]),
+        tipo: item.tipo.value.includes("Q7075") ? "library" : "museum"
+      };
+    });
+
+    exibirTodosNoMapa();
+  } catch (erro) {
+    console.error("Erro ao buscar dados da Wikidata:", erro);
+  }
 }
 
 function exibirTodosNoMapa() {
