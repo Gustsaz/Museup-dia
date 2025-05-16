@@ -74,26 +74,25 @@ function fetchSuggestions() {
     out center;
   `;
 
-  fetch('https://overpass.kumi.systems/api/interpreter', {
-    method: 'POST',
-    body: overpassQuery
-  })
-    .then(res => res.json())
-    .then(data => {
-      spinner.style.display = "none";
-      const names = new Set();
-      data.elements.forEach(el => {
-        if (el.tags?.name) {
-          names.add(el.tags.name);
-        }
-      });
-      showSuggestions([...names].slice(0, 10));
-    })
-    .catch(err => {
-      spinner.style.display = "none";
-      console.error("Erro ao buscar sugestões:", err);
-    });
-}
+ fetch('https://overpass.kumi.systems/api/interpreter', {
+  method: 'POST',
+  body: overpassQuery
+})
+.then(async res => {
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error("Erro bruto:", errText);
+    throw new Error("Falha ao buscar dados.");
+  }
+  return res.json();
+})
+.then(data => {
+  // seu código normal
+})
+.catch(err => {
+  console.error("Erro ao buscar dados:", err);
+});
+
 
 function showSuggestions(suggestions) {
   const container = document.getElementById('suggestions');
