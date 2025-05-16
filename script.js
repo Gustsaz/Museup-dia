@@ -5,6 +5,37 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 let markersLayer = L.layerGroup().addTo(map);
 let debounceTimeout;
+let suggestionIndex = -1;
+
+document.addEventListener('click', function (e) {
+  if (!document.getElementById('searchInput').contains(e.target)) {
+    document.getElementById('suggestions').innerHTML = "";
+  }
+});
+
+document.getElementById('searchInput').addEventListener('keydown', (e) => {
+  const suggestions = document.querySelectorAll('#suggestions div');
+  if (suggestions.length === 0) return;
+
+  if (e.key === 'ArrowDown') {
+    suggestionIndex = (suggestionIndex + 1) % suggestions.length;
+  } else if (e.key === 'ArrowUp') {
+    suggestionIndex = (suggestionIndex - 1 + suggestions.length) % suggestions.length;
+  } else if (e.key === 'Enter') {
+    if (suggestionIndex >= 0) {
+      suggestions[suggestionIndex].click();
+      e.preventDefault();
+    }
+    return;
+  } else {
+    suggestionIndex = -1;
+    return;
+  }
+
+  suggestions.forEach((s, i) => {
+    s.classList.toggle('selected', i === suggestionIndex);
+  });
+});
 
 function handleInput() {
   clearTimeout(debounceTimeout);
@@ -14,11 +45,16 @@ function handleInput() {
 function fetchSuggestions() {
   const query = document.getElementById('searchInput').value.toLowerCase();
   const filter = document.getElementById('filterType').value;
+  const spinner = document.getElementById('loadingSpinner');
+  const container = document.getElementById('suggestions');
 
   if (query.length < 3) {
-    document.getElementById('suggestions').innerHTML = "";
+    container.innerHTML = "";
+    spinner.style.display = "none";
     return;
   }
+
+  spinner.style.display = "inline-block";
 
   let filters = [];
   if (filter === "museum" || filter === "all") {
@@ -27,7 +63,7 @@ function fetchSuggestions() {
   }
   if (filter === "library" || filter === "all") {
     filters.push(`node["amenity"="library"]["name"~"${query}",i]`);
-    filters.push(`way["amenity"="library"]["name"~"${query}",i]`);
+    filters.push(`way["amenity"="library"]["name"~="${query}",i]`);
   }
 
   const overpassQuery = `
@@ -38,22 +74,25 @@ function fetchSuggestions() {
     out center;
   `;
 
-  fetch('https://overpass-api.de/api/interpreter', {
+  fetch('https://overpass.kumi.systems/api/interpreter', {
     method: 'POST',
     body: overpassQuery
   })
     .then(res => res.json())
     .then(data => {
+      spinner.style.display = "none";
       const names = new Set();
       data.elements.forEach(el => {
         if (el.tags?.name) {
           names.add(el.tags.name);
         }
       });
-
-      showSuggestions([...names].slice(0, 10)); // limita a 10 sugestões
+      showSuggestions([...names].slice(0, 10));
     })
-    .catch(err => console.error("Erro ao buscar sugestões:", err));
+    .catch(err => {
+      spinner.style.display = "none";
+      console.error("Erro ao buscar sugestões:", err);
+    });
 }
 
 function showSuggestions(suggestions) {
@@ -70,6 +109,7 @@ function showSuggestions(suggestions) {
     };
     container.appendChild(div);
   });
+  suggestionIndex = -1;
 }
 
 function searchPlaces() {
@@ -87,12 +127,12 @@ function searchPlaces() {
   let filters = [];
   if (filter === "museum" || filter === "all") {
     filters.push(`node["tourism"="museum"]["name"~"${query}",i]`);
-    filters.push(`way["tourism"="museum"]["name"~"${query}",i]`);
-    filters.push(`relation["tourism"="museum"]["name"~"${query}",i]`);
+    filters.push(`way["tourism"="museum"]["name"~="${query}",i]`);
+    filters.push(`relation["tourism"="museum"]["name"~="${query}",i]`);
   }
   if (filter === "library" || filter === "all") {
     filters.push(`node["amenity"="library"]["name"~"${query}",i]`);
-    filters.push(`way["amenity"="library"]["name"~"${query}",i]`);
+    filters.push(`way["amenity"="library"]["name"~="${query}",i]`);
     filters.push(`relation["amenity"="library"]["name"~="${query}",i]`);
   }
 
@@ -104,7 +144,7 @@ function searchPlaces() {
     out center;
   `;
 
-  fetch('https://overpass-api.de/api/interpreter', {
+  fetch('https://overpass.kumi.systems/api/interpreter', {
     method: 'POST',
     body: overpassQuery
   })
