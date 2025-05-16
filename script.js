@@ -17,12 +17,18 @@ async function buscarLocais() {
   const query = `
     SELECT ?item ?itemLabel ?coord ?tipo WHERE {
       VALUES ?tipo { wd:Q33506 wd:Q7075 } # Museu ou Biblioteca
-      ?item wdt:P31/wdt:P279* ?tipo.
+      ?item (wdt:P31/wdt:P279*) ?tipo.
       ?item wdt:P17 wd:Q155. # Brasil
       ?item wdt:P625 ?coord.
       SERVICE wikibase:label { bd:serviceParam wikibase:language "pt". }
     }
-    LIMIT 500
+    UNION {
+      VALUES ?item { wd:Q82941 wd:Q371803 wd:Q18482277 } # MASP, Museu do Ipiranga, Catavento
+      ?item wdt:P625 ?coord.
+      ?item wdt:P31 ?tipo.
+      SERVICE wikibase:label { bd:serviceParam wikibase:language "pt". }
+    }
+    LIMIT 600
   `;
 
   const url = endpoint + "?query=" + encodeURIComponent(query);
@@ -106,5 +112,12 @@ function focarLocal(local) {
   adicionarMarcador(local);
   map.setView([local.lat, local.lng], 15);
 }
+
+// Ocultar sugestões ao clicar fora
+document.addEventListener('click', (event) => {
+  if (!searchInput.contains(event.target) && !suggestions.contains(event.target)) {
+    suggestions.innerHTML = '';
+  }
+});
 
 buscarLocais();
