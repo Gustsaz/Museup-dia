@@ -7,7 +7,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 let markersLayer = L.layerGroup().addTo(map);
 
 function searchPlaces() {
-  const query = document.getElementById('searchInput').value.toLowerCase();
+  const query = document.getElementById('searchInput').value.trim();
   const filter = document.getElementById('filterType').value;
 
   if (!query) {
@@ -17,21 +17,27 @@ function searchPlaces() {
 
   markersLayer.clearLayers();
 
-  const bbox = '( -23.7, -46.9, -23.4, -46.4 )'; // Bounding box para São Paulo
+  // Escapar caracteres problemáticos na query do usuário (ex: aspas, barras, etc)
+  const escapedQuery = query.replace(/["\\]/g, '');
+
   let filters = [];
 
   if (filter === "museum" || filter === "all") {
-    filters.push(`node["tourism"="museum"][name~"${query}",i]${bbox}`);
+    filters.push(`node["tourism"="museum"]["name"~"${escapedQuery}", i](around:10000, -23.55052, -46.633308);`);
+    filters.push(`way["tourism"="museum"]["name"~"${escapedQuery}", i](around:10000, -23.55052, -46.633308);`);
+    filters.push(`relation["tourism"="museum"]["name"~"${escapedQuery}", i](around:10000, -23.55052, -46.633308);`);
   }
 
   if (filter === "library" || filter === "all") {
-    filters.push(`node["amenity"="library"][name~"${query}",i]${bbox}`);
+    filters.push(`node["amenity"="library"]["name"~"${escapedQuery}", i](around:10000, -23.55052, -46.633308);`);
+    filters.push(`way["amenity"="library"]["name"~"${escapedQuery}", i](around:10000, -23.55052, -46.633308);`);
+    filters.push(`relation["amenity"="library"]["name"~"${escapedQuery}", i](around:10000, -23.55052, -46.633308);`);
   }
 
   const overpassQuery = `
     [out:json][timeout:25];
     (
-      ${filters.join(";\n")}
+      ${filters.join('\n')}
     );
     out center;
   `;
@@ -53,21 +59,18 @@ function searchPlaces() {
   })
   .then(data => {
     if (!data.elements || data.elements.length === 0) {
-      alert("Nenhum resultado encontrado.");
+      alert("Nenhum local encontrado.");
       return;
     }
 
-    data.elements.forEach(place => {
-      const lat = place.lat || place.center?.lat;
-      const lon = place.lon || place.center?.lon;
+    data.elements.forEach(el => {
+      let lat = el.lat || el.center?.lat;
+      let lon = el.lon || el.center?.lon;
 
       if (lat && lon) {
-        const name = place.tags?.name || "Sem nome";
-        const type = place.tags?.tourism ? "Museu" : "Biblioteca";
-
-        const marker = L.marker([lat, lon])
-          .bindPopup(`<strong>${name}</strong><br>Tipo: ${type}`);
-        markersLayer.addLayer(marker);
+        L.marker([lat, lon])
+          .addTo(markersLayer)
+          .bindPopup(el.tags?.name || "Sem nome");
       }
     });
   })
