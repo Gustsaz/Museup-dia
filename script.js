@@ -10,8 +10,7 @@ let markers = [];
 
 const searchInput = document.getElementById('search');
 const suggestions = document.getElementById('suggestions');
-const typeFilter = document.getElementById('typeFilter');
-const searchBtn = document.getElementById('searchBtn');
+const searchBtn = document.getElementById('searchBtn'); // Você pode remover o botão se quiser
 
 async function buscarLocais() {
   const query = `
@@ -53,10 +52,7 @@ async function buscarLocais() {
 
 function exibirTodosNoMapa() {
   limparMarcadores();
-  const filtro = typeFilter.value;
-  locais
-    .filter(l => filtro === 'all' || l.tipo === filtro)
-    .forEach(l => adicionarMarcador(l));
+  locais.forEach(l => adicionarMarcador(l));
 }
 
 function adicionarMarcador(local) {
@@ -71,23 +67,18 @@ function limparMarcadores() {
 }
 
 searchInput.addEventListener('input', atualizarSugestoes);
-typeFilter.addEventListener('change', exibirTodosNoMapa);
-searchBtn.addEventListener('click', () => {
-  const termo = searchInput.value.toLowerCase();
-  const filtro = typeFilter.value;
-  const localEncontrado = locais.find(l => (filtro === 'all' || l.tipo === filtro) && l.nome.toLowerCase().includes(termo));
-  if (localEncontrado) {
-    focarLocal(localEncontrado);
-    suggestions.innerHTML = '';
+
+searchInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    pesquisar();
   }
 });
 
 function atualizarSugestoes() {
   const termo = searchInput.value.toLowerCase();
-  const filtro = typeFilter.value;
   suggestions.innerHTML = '';
   locais
-    .filter(l => (filtro === 'all' || l.tipo === filtro) && l.nome.toLowerCase().includes(termo))
+    .filter(l => l.nome.toLowerCase().includes(termo))
     .slice(0, 10)
     .forEach(l => {
       const item = document.createElement('li');
@@ -99,6 +90,15 @@ function atualizarSugestoes() {
       });
       suggestions.appendChild(item);
     });
+}
+
+function pesquisar() {
+  const termo = searchInput.value.toLowerCase();
+  const localEncontrado = locais.find(l => l.nome.toLowerCase().includes(termo));
+  if (localEncontrado) {
+    focarLocal(localEncontrado);
+    suggestions.innerHTML = '';
+  }
 }
 
 function focarLocal(local) {
