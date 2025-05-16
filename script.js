@@ -17,17 +17,16 @@ function searchPlaces() {
 
   markersLayer.clearLayers();
 
+  const bbox = '( -23.7, -46.9, -23.4, -46.4 )'; // Bounding box para São Paulo
   let filters = [];
-const bbox = '( -23.7, -46.9, -23.4, -46.4 )'; // caixa São Paulo
 
-if (filter === "museum" || filter === "all") {
-  filters.push(`node["tourism"="museum"][name~"${query}",i]${bbox}`);
-}
-if (filter === "library" || filter === "all") {
-  filters.push(`node["amenity"="library"][name~"${query}",i]${bbox}`);
-}
+  if (filter === "museum" || filter === "all") {
+    filters.push(`node["tourism"="museum"][name~"${query}",i]${bbox}`);
+  }
 
-
+  if (filter === "library" || filter === "all") {
+    filters.push(`node["amenity"="library"][name~"${query}",i]${bbox}`);
+  }
 
   const overpassQuery = `
     [out:json][timeout:25];
@@ -49,32 +48,26 @@ if (filter === "library" || filter === "all") {
     body: bodyData
   })
   .then(response => {
-    if (!response.ok) throw new Error("Bad response from Overpass API");
+    if (!response.ok) throw new Error("Resposta inválida da Overpass API");
     return response.json();
   })
   .then(data => {
-    if (!data.elements.length) {
+    if (!data.elements || data.elements.length === 0) {
       alert("Nenhum resultado encontrado.");
       return;
     }
 
-    data.elements.forEach(element => {
-      let lat = element.lat;
-      let lon = element.lon;
-
-      // Para 'ways' e 'relations', usamos o centro
-      if (!lat || !lon) {
-        if (element.center) {
-          lat = element.center.lat;
-          lon = element.center.lon;
-        }
-      }
+    data.elements.forEach(place => {
+      const lat = place.lat || place.center?.lat;
+      const lon = place.lon || place.center?.lon;
 
       if (lat && lon) {
-        const name = element.tags?.name || "Sem nome";
-        L.marker([lat, lon])
-          .addTo(markersLayer)
-          .bindPopup(`<b>${name}</b>`);
+        const name = place.tags?.name || "Sem nome";
+        const type = place.tags?.tourism ? "Museu" : "Biblioteca";
+
+        const marker = L.marker([lat, lon])
+          .bindPopup(`<strong>${name}</strong><br>Tipo: ${type}`);
+        markersLayer.addLayer(marker);
       }
     });
   })
