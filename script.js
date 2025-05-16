@@ -1,17 +1,17 @@
 const endpoint = "https://query.wikidata.org/sparql";
-const map = L.map('map').setView([-14.235, -51.9253], 4);
+const map = L.map("map").setView([-14.235, -51.9253], 4);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors'
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "&copy; OpenStreetMap contributors",
 }).addTo(map);
 
 let locais = [];
 let markers = [];
 
-const searchInput = document.getElementById('search');
-const suggestions = document.getElementById('suggestions');
-const typeFilter = document.getElementById('typeFilter');
-const searchBtn = document.getElementById('searchBtn');
+const searchInput = document.getElementById("search");
+const suggestions = document.getElementById("suggestions");
+const typeFilter = document.getElementById("typeFilter");
+const searchBtn = document.getElementById("searchBtn");
 
 async function buscarLocais() {
   const query = `
@@ -32,22 +32,22 @@ async function buscarLocais() {
   `;
 
   const url = endpoint + "?query=" + encodeURIComponent(query);
-  const headers = { "Accept": "application/sparql-results+json" };
+  const headers = { Accept: "application/sparql-results+json" };
 
   try {
     const response = await fetch(url, { headers });
     const data = await response.json();
 
-    locais = data.results.bindings.map(item => {
+    locais = data.results.bindings.map((item) => {
       const coords = item.coord.value
-        .replace('Point(', '')
-        .replace(')', '')
-        .split(' ');
+        .replace("Point(", "")
+        .replace(")", "")
+        .split(" ");
       return {
         nome: item.itemLabel.value,
         lat: parseFloat(coords[1]),
         lng: parseFloat(coords[0]),
-        tipo: item.tipo.value.includes("Q7075") ? "library" : "museum"
+        tipo: item.tipo.value.includes("Q7075") ? "library" : "museum",
       };
     });
 
@@ -61,46 +61,65 @@ function exibirTodosNoMapa() {
   limparMarcadores();
   const filtro = typeFilter.value;
   locais
-    .filter(l => filtro === 'all' || l.tipo === filtro)
-    .forEach(l => adicionarMarcador(l));
+    .filter((l) => filtro === "all" || l.tipo === filtro)
+    .forEach((l) => adicionarMarcador(l));
 }
 
 function adicionarMarcador(local) {
   const marker = L.marker([local.lat, local.lng]).addTo(map);
-  marker.bindPopup(`<strong>${local.nome}</strong><br>${local.tipo === 'library' ? 'Biblioteca' : 'Museu'}`);
+  marker.bindPopup(
+    `<strong>${local.nome}</strong><br>${
+      local.tipo === "library" ? "Biblioteca" : "Museu"
+    }`
+  );
   markers.push(marker);
 }
 
 function limparMarcadores() {
-  markers.forEach(marker => map.removeLayer(marker));
+  markers.forEach((marker) => map.removeLayer(marker));
   markers = [];
 }
 
-searchInput.addEventListener('input', atualizarSugestoes);
-typeFilter.addEventListener('change', exibirTodosNoMapa);
-searchBtn.addEventListener('click', () => {
-  const termo = searchInput.value.toLowerCase();
-  const filtro = typeFilter.value;
-  const localEncontrado = locais.find(l => (filtro === 'all' || l.tipo === filtro) && l.nome.toLowerCase().includes(termo));
-  if (localEncontrado) {
-    focarLocal(localEncontrado);
-    suggestions.innerHTML = '';
+searchInput.addEventListener("input", atualizarSugestoes);
+typeFilter.addEventListener("change", exibirTodosNoMapa);
+
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    executarPesquisa();
   }
 });
+
+searchBtn.addEventListener("click", executarPesquisa);
+
+function executarPesquisa() {
+  const termo = searchInput.value.toLowerCase().trim();
+  const filtro = typeFilter.value;
+  const localEncontrado = locais.find(
+    (l) => (filtro === "all" || l.tipo === filtro) && l.nome.toLowerCase().includes(termo)
+  );
+
+  if (localEncontrado) {
+    focarLocal(localEncontrado);
+    suggestions.innerHTML = "";
+  } else {
+    console.warn(`Nenhum local encontrado com o nome "${termo}".`);
+  }
+}
 
 function atualizarSugestoes() {
   const termo = searchInput.value.toLowerCase();
   const filtro = typeFilter.value;
-  suggestions.innerHTML = '';
+  suggestions.innerHTML = "";
   locais
-    .filter(l => (filtro === 'all' || l.tipo === filtro) && l.nome.toLowerCase().includes(termo))
+    .filter((l) => (filtro === "all" || l.tipo === filtro) && l.nome.toLowerCase().includes(termo))
     .slice(0, 10)
-    .forEach(l => {
-      const item = document.createElement('li');
+    .forEach((l) => {
+      const item = document.createElement("li");
       item.textContent = l.nome;
-      item.addEventListener('click', () => {
+      item.addEventListener("click", () => {
         searchInput.value = l.nome;
-        suggestions.innerHTML = '';
+        suggestions.innerHTML = "";
         focarLocal(l);
       });
       suggestions.appendChild(item);
@@ -114,9 +133,9 @@ function focarLocal(local) {
 }
 
 // Ocultar sugestões ao clicar fora
-document.addEventListener('click', (event) => {
+document.addEventListener("click", (event) => {
   if (!searchInput.contains(event.target) && !suggestions.contains(event.target)) {
-    suggestions.innerHTML = '';
+    suggestions.innerHTML = "";
   }
 });
 
