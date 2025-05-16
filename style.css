@@ -1,0 +1,30 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  padding: 10px;
+}
+#search {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+}
+#suggestions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#suggestions li {
+  padding: 5px;
+  background: #f0f0f0;
+  cursor: pointer;
+}
+#suggestions li:hover {
+  background: #ddd;
+}
+#map {
+  height: 500px;
+  margin-top: 10px;
+}
