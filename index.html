@@ -10,7 +10,12 @@
 <body>
   <div id="app">
     <h1>Museus e Bibliotecas</h1>
-    <input type="text" id="searchInput" placeholder="Digite uma cidade, bairro ou nome..." />
+    <input type="text" id="searchInput" placeholder="Digite o nome do local..." />
+    <select id="filterType">
+      <option value="all">Todos</option>
+      <option value="museum">Apenas Museus</option>
+      <option value="library">Apenas Bibliotecas</option>
+    </select>
     <button onclick="searchPlaces()">Buscar</button>
     <div id="map"></div>
   </div>
