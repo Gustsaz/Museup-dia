@@ -18,16 +18,16 @@ function searchPlaces() {
   markersLayer.clearLayers();
 
   let filters = [];
-  if (filter === "museum" || filter === "all") {
-    filters.push(`node["tourism"="museum"]["name"~"${query}",i]`);
-    filters.push(`way["tourism"="museum"]["name"~"${query}",i]`);
-    filters.push(`relation["tourism"="museum"]["name"~"${query}",i]`);
-  }
-  if (filter === "library" || filter === "all") {
-    filters.push(`node["amenity"="library"]["name"~"${query}",i]`);
-    filters.push(`way["amenity"="library"]["name"~"${query}",i]`);
-    filters.push(`relation["amenity"="library"]["name"~"${query}",i]`);
-  }
+const bbox = '( -23.7, -46.9, -23.4, -46.4 )'; // caixa São Paulo
+
+if (filter === "museum" || filter === "all") {
+  filters.push(`node["tourism"="museum"][name~"${query}",i]${bbox}`);
+}
+if (filter === "library" || filter === "all") {
+  filters.push(`node["amenity"="library"][name~"${query}",i]${bbox}`);
+}
+
+
 
   const overpassQuery = `
     [out:json][timeout:25];
