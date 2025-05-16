@@ -43,7 +43,10 @@ function searchPlaces() {
     method: 'POST',
     body: overpassQuery
   })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error("Bad response from Overpass API");
+      return response.json();
+    })
     .then(data => {
       if (!data.elements.length) {
         alert("Nenhum resultado encontrado.");
@@ -62,7 +65,6 @@ function searchPlaces() {
         }
       });
 
-      // Centraliza no primeiro resultado
       const first = data.elements[0];
       const centerLat = first.lat || first.center?.lat;
       const centerLon = first.lon || first.center?.lon;
